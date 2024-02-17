@@ -11,14 +11,18 @@ config_version=5
 [application]
 
 config/name="JungleJump"
-run/main_scene="res://Scenes/Main/main.tscn"
+run/main_scene="res://Scenes/Title/title.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+GameState="*res://game_state.gd"
 
 [display]
 
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
+window/stretch/aspect="ignore"
 
 [input]
 

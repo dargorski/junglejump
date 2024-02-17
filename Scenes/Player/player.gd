@@ -12,7 +12,8 @@ var life = 3: set = set_life
 
 func set_life(value):
 	life = value
-	life_changed.emit(life)
+	if life > 0:
+		life_changed.emit(life)
 	if life <= 0:
 		change_state(STATE.DEAD)
 
@@ -23,6 +24,18 @@ func _physics_process(delta):
 	velocity.y += gravity * delta
 	get_input()
 	move_and_slide()
+	if state == STATE.HURT:
+		return
+	for i in get_slide_collision_count():
+		var collision = get_slide_collision(i)
+		if collision.get_collider().is_in_group("danger"):
+			hurt()
+		if collision.get_collider().is_in_group("enemies"):
+			if position.y < collision.get_collider().position.y:
+				collision.get_collider().take_damage()
+				velocity.y = -200
+			else: 
+				hurt()
 	
 	if state == STATE.JUMP and is_on_floor():
 		change_state(STATE.IDLE)
@@ -39,9 +52,13 @@ func change_state(new_state: STATE):
 		STATE.HURT:
 			$AnimationPlayer.play("hurt")
 			velocity.y = -200
-			velocity.x = -100 * sign(velocity.x)
+			var direction = sign(velocity.x)
+			if direction == 0: 
+				direction = 1;
+			velocity.x = -100 * direction
 			life -= 1
-			await get_tree().create_timer(0.5).timeout
+			if life > 0:
+				await get_tree().create_timer(0.5).timeout
 			change_state(STATE.IDLE)
 		STATE.JUMP:
 			$AnimationPlayer.play("jump_up")
